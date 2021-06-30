@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,7 +15,7 @@ SECRET_KEY = 'django-insecure-67c9h!&!w1l*+0yn6k+wj8!i9-m4674!wlk@8*t!2(fn6rk9q^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -31,6 +32,10 @@ INSTALLED_APPS = [
     'news',
     'accounts',
     'blog',
+    'indicators',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'channels',
+    'channels_redis',
     'ckeditor',
     'ckeditor_uploader',
 ]
@@ -133,7 +138,7 @@ REST_FRAMEWORK = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = [os.path.join(BASE_DIR, 'media')]
 
-LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'index'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -149,8 +154,38 @@ CKEDITOR_UPLOAD_PATH = 'ckeditor/'
 
 DJANGO_WYSIWYG_FLAVOR = "ckeditor"
 CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
-CKEDITOR_RESTRICT_BY_USER = True #Only who upload image see it
-CKEDITOR_BROWSE_SHOW_DIRS = True # Shows directory of image in the server
-CKEDITOR_RESTRICT_BY_DATE = True # Arranges image in terms of date uploaded
+CKEDITOR_RESTRICT_BY_USER = True  # Only who upload image see it
+CKEDITOR_BROWSE_SHOW_DIRS = True  # Shows directory of image in the server
+CKEDITOR_RESTRICT_BY_DATE = True  # Arranges image in terms of date uploaded
 CKEDITOR_IMAGE_BACKEND = "pillow"
 
+
+PLOTLY_COMPONENTS = [
+
+    'dash_core_components',
+    'dash_html_components',
+    'dash_renderer',
+
+    'dpd_components'
+]
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django_plotly_dash.finders.DashAssetFinder',
+    'django_plotly_dash.finders.DashComponentFinder'
+]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+CRISPY_TEMPLATE_PACK = 'bootstap4'
+
+ASGI_APPLICATION = 'config.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379), ],
+        }
+    }
+}

@@ -5,6 +5,12 @@ name = "pypi"
 
 [packages]
 django = "*"
+python-dotenv = "*"
+autopep8 = "*"
+flake8 = "*"
+django-debug-toolbar = "*"
+channels-redis = "*"
+pytz = "*"
 websocket = "*"
 djangorestframework = "*"
 django-ckeditor = "*"
@@ -24,13 +30,8 @@ alpha-vantage = "*"
 channels = "*"
 redis = "*"
 daphne = "*"
-django-redis = "*"
-pytz = "*"
-channels-redis = "*"
 
 [dev-packages]
-autopep8 = "*"
-flake8 = "*"
 
 [requires]
 python_version = "3.9"

@@ -1,15 +1,24 @@
 from django.urls import path
-from apps.blogs.views import index, category, tags, PostDetails, Contact, ContactSuccess
+from apps.blogs.views import (
+    PostListView,
+    PostDetailView,
+    PostCreateView,
+    PostUpdateView,
+    PostDeleteView,
+    UserPostListView,
+    about
+)
 
 
-from django.views.generic import TemplateView
+app_name = "blogs"
+
 
 urlpatterns = [
-    path('', index, name='index'),
-    path('categories/<slug:category_slug>', category, name='categories'),
-    path('tags/<slug:tag_slug>', tags, name='tags'),
-    path('<slug:post_slug>', PostDetails, name='articledetails'),
-    path('contact/', Contact, name='contact'),
-    path('contact/success/', ContactSuccess, name='contactsuccess'),
-
+    path('', PostListView.as_view(), name='home'),
+    path('user/<str:username>', UserPostListView.as_view(), name='user-posts'),
+    path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    path('post/new/', PostCreateView.as_view(), name='post-create'),
+    path('post/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
+    path('post/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
+    path('about/', about, name='about'),
 ]

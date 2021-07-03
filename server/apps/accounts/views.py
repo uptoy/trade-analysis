@@ -1,109 +1,42 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from apps.accounts.forms import SignupForm, ChangePasswordForm, EditProfileForm
-from django.contrib.auth.models import User
-
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
-
-from apps.accounts.models import Profile
-from django.template import loader
-from django.http import HttpResponse
-
-from django.core.paginator import Paginator
-
-# Create your views here.
-from django.http import HttpResponse
+from apps.accounts.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 
 
-def index(request):
-    return HttpResponse("accounts")
-
-
-def UserProfile(request, username):
-    user = get_object_or_404(User, username=username)
-    profile = Profile.objects.get(user=user)
-    articles = profile.favorites.all()
-
-    # Pagination
-    paginator = Paginator(articles, 6)
-    page_number = request.GET.get('page')
-    articles_paginator = paginator.get_page(page_number)
-
-    template = loader.get_template('accounts/profile.html')
-
-    context = {
-        'articles': articles_paginator,
-        'profile': profile,
-    }
-
-    return HttpResponse(template.render(context, request))
-
-
-def Signup(request):
+def register(request):
     if request.method == 'POST':
-        form = SignupForm(request.POST)
+        form = UserRegisterForm(request.POST)
         if form.is_valid():
+            form.save()
             username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            User.objects.create_user(username=username, email=email, password=password)
-            return redirect('index')
+            messages.success(request, f'Your account has been created! You are now able to log in')
+            return redirect('login')
     else:
-        form = SignupForm()
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, 'accounts/signup.html', context)
+        form = UserRegisterForm()
+    return render(request, 'accounts/register.html', {'form': form})
 
 
 @login_required
-def PasswordChange(request):
-    user = request.user
+def profile(request):
     if request.method == 'POST':
-        form = ChangePasswordForm(request.POST)
-        if form.is_valid():
-            new_password = form.cleaned_data.get('new_password')
-            user.set_password(new_password)
-            user.save()
-            update_session_auth_hash(request, user)
-            return redirect('change_password_done')
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST,
+                                   request.FILES,
+                                   instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, f'Your account has been updated!')
+            return redirect('profile')
+
     else:
-        form = ChangePasswordForm(instance=user)
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
 
     context = {
-        'form': form,
+        'u_form': u_form,
+        'p_form': p_form
     }
 
-    return render(request, 'accounts/change_password.html', context)
-
-
-def PasswordChangeDone(request):
-    return render(request, 'accounts/change_password_done.html')
-
-
-@login_required
-def EditProfile(request):
-    user = request.user.id
-    profile = Profile.objects.get(user__id=user)
-
-    if request.method == 'POST':
-        form = EditProfileForm(request.POST, request.FILES)
-        if form.is_valid():
-            profile.picture = form.cleaned_data.get('picture')
-            profile.first_name = form.cleaned_data.get('first_name')
-            profile.last_name = form.cleaned_data.get('last_name')
-            profile.location = form.cleaned_data.get('location')
-            profile.url = form.cleaned_data.get('url')
-            profile.profile_info = form.cleaned_data.get('profile_info')
-            profile.save()
-            return redirect('blogs/index.html')
-    else:
-        form = EditProfileForm()
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, 'accounts/edit_profile.html', context)
+    return render(request, 'users/profile.html', context)

@@ -14,15 +14,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'apps.blogs',
     'apps.accounts',
     'apps.charts',
-    'apps.blogs',
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
-    'channels',
-    'channels_redis',
-    'ckeditor',
-    'ckeditor_uploader',
+    'crispy_forms',
+
 ]
 
 MIDDLEWARE = [
@@ -60,7 +56,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 
 
 # Password validation
@@ -130,21 +125,6 @@ CKEDITOR_RESTRICT_BY_DATE = True  # Arranges image in terms of date uploaded
 CKEDITOR_IMAGE_BACKEND = "pillow"
 
 
-PLOTLY_COMPONENTS = [
-
-    'dash_core_components',
-    'dash_html_components',
-    'dash_renderer',
-
-    'dpd_components'
-]
-
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'django_plotly_dash.finders.DashAssetFinder',
-    'django_plotly_dash.finders.DashComponentFinder'
-]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
@@ -197,4 +177,4 @@ LOGGING = {
     },
 }
 
-
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

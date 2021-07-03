@@ -8,11 +8,11 @@ load_dotenv('./.env')
 
 def main():
     # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-    envstate = os.getenv('ENV_STATE','local')
-    if envstate=='production':
+    envstate = os.getenv('ENV_STATE', 'local')
+    if envstate == 'production':
         # settings/production.py
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
-    elif envstate=='staging':
+    elif envstate == 'staging':
         # settings/staging.py
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.staging')
     else:

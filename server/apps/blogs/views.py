@@ -1,116 +1,80 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.template import loader
-from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView
+)
+from apps.blogs.models import Post
 
 
-from apps.blogs.models import Post, Category, Tag, Contact
-from django.db.models import Q
-
-from apps.blogs.forms import ContactForm
-from django.utils import timezone
-
-# Create your views here.
-
-
-def index(request):
-    articles = Post.objects.filter(status='published').order_by('-publication_date')
-    categories = Category.objects.all()
-
-    # Search
-    query = request.GET.get("q")
-
-    if query:
-        articles = articles.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query)).distinct()
-
-    # Pagination
-    paginator = Paginator(articles, 6)
-    page_number = request.GET.get('page')
-    articles_paginator = paginator.get_page(page_number)
-
-    template = loader.get_template('blogs/index.html')
-
+def home(request):
     context = {
-        'articles': articles_paginator,
-        'categories': categories,
+        'posts': Post.objects.all()
     }
-
-    return HttpResponse(template.render(context, request))
-
-
-def category(request, category_slug):
-    articles = Post.objects.filter(status='published').order_by('-publication_date')
-    categories = Category.objects.all()
-
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        articles = articles.filter(category=category)
-
-    # Complete your homework here
-
-    template = loader.get_template('category.html')
-
-    context = {
-        'articles': articles,
-        'categories': categories,
-    }
-
-    return HttpResponse(template.render(context, request))
+    return render(request, 'blogs/home.html', context)
 
 
-def tags(request, tag_slug):
-    tags = Tag.objects.all()
-    articles = Post.objects.filter(status='published').order_by('-publication_date')
-
-    if tag_slug:
-        tag = get_object_or_404(Tag, slug=tag_slug)
-        articles = articles.filter(tags=tag)
-
-    # Complete your homework here
-
-    template = loader.get_template('tags.html')
-
-    context = {
-        'articles': articles,
-    }
-
-    return HttpResponse(template.render(context, request))
+class PostListView(ListView):
+    model = Post
+    template_name = 'blogs/home.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+    ordering = ['-date_posted']
+    paginate_by = 5
 
 
-def PostDetails(request, post_slug):
-    article = get_object_or_404(Post, slug=post_slug)
+class UserPostListView(ListView):
+    model = Post
+    template_name = 'blogs/user_posts.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'posts'
+    paginate_by = 5
 
-    template = loader.get_template('post_detail.html')
-
-    context = {
-        'article': article,
-    }
-
-    return HttpResponse(template.render(context, request))
-
-
-def Contact(request):
-
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.message_date = timezone.now()
-            form.save()
-            return redirect('contactsuccess')
-    else:
-        form = ContactForm()
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, 'blogs/contact.html', context)
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Post.objects.filter(author=user).order_by('-date_posted')
 
 
-# static website for the form contact
+class PostDetailView(DetailView):
+    model = Post
 
-def ContactSuccess(request):
-    return render(request, 'contactsuccess.html',)
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    fields = ['title', 'content']
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    fields = ['title', 'content']
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
+
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    success_url = '/'
+
+    def test_func(self):
+        post = self.get_object()
+        if self.request.user == post.author:
+            return True
+        return False
+
+
+def about(request):
+    return render(request, 'blogs/about.html', {'title': 'About'})

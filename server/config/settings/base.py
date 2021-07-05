@@ -17,7 +17,11 @@ INSTALLED_APPS = [
     'apps.blogs',
     'apps.accounts',
     'apps.charts',
+    'apps.backtests',
     'crispy_forms',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'channels',
+    'channels_redis'
 
 ]
 
@@ -123,7 +127,6 @@ CKEDITOR_RESTRICT_BY_USER = True  # Only who upload image see it
 CKEDITOR_BROWSE_SHOW_DIRS = True  # Shows directory of image in the server
 CKEDITOR_RESTRICT_BY_DATE = True  # Arranges image in terms of date uploaded
 CKEDITOR_IMAGE_BACKEND = "pillow"
-
 
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'

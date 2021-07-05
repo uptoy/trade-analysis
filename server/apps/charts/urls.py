@@ -1,12 +1,11 @@
 from django.urls import path
-from apps.charts.views import (
-    about
-)
+from apps.charts.views import HomeView,CryptoView
 
 
 app_name = "charts"
 
-
 urlpatterns = [
-    path('', about, name='about'),
+    path('home/', HomeView, name="home"),
+    path('crypto/', CryptoView, name="crypto"),
+
 ]

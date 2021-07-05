@@ -4,14 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-python-dotenv = "*"
-django-debug-toolbar = "*"
-dash = "*"
-pillow = "*"
-django-crispy-forms = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.6"

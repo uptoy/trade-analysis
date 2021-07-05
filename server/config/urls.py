@@ -23,7 +23,9 @@ if settings.DEBUG:
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.blogs.urls')),
+    path('backtests/', include('apps.backtests.urls')),
     path('charts/', include('apps.charts.urls')),
     path('accounts/', include('apps.accounts.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
 ]
